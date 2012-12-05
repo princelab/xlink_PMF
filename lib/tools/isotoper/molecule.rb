@@ -1,4 +1,6 @@
 require 'mspire/mass'
+require_relative 'isotopes'
+#require_relative '../fft_R'
 class Molecule
   Neutron = 1.00866491600
   Cutoff = 0.001
@@ -28,8 +30,6 @@ class Molecule
       arr = Array.new(arr_size) { 0 }
       arrs[element] = arr
     end
-    require_relative 'isotopes'
-    require_relative '../fft_R'
     transformer = FFT.new
     arrs.keys.each do |element|
       isotopes = ::Isotopes[element]

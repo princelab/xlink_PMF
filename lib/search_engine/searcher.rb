@@ -11,6 +11,7 @@ module MS
     class Searcher
       def initialize(file)
         if File.extname(file) == ".fasta"
+          @fasta_file = file
           decoy_file = create_decoy_file(file) 
           putsv "Creating: #create_theoretical_spectra"
           @theoretical_spectra = create_theoretical_spectra(file)
@@ -28,7 +29,7 @@ module MS
         @experimental_matched_spectra = search_mzml(file, @theoretical_spectra)
         @decoy_matched_spectra = search_mzml(file, @decoy_theoretical_spectra)
         qvalues(@experimental_matched_spectra, @decoy_matched_spectra)
-        output( @experimental_matched_spectra)
+        output(@experimental_matched_spectra)
       end
 
       def qvalues(experiment, decoy)
@@ -53,6 +54,15 @@ module MS
       end
       def create_decoy_file(file)
         MS::Decoy.new.generate(file)
+      end
+      # Fxn to create a pmf database
+      def create_theoretical_pmf(fasta_file = @fasta_file)
+        d = Digestor.new('trypsin')
+        @pep_centric_hash = PeptideCentricDB.create_peptide_to_protein_hash(fasta_file) do |aaseq|
+          d.digest(aaseq, :missed_cleavages => Options[:missed_cleavages], :minimum_length => 6)
+        end
+        @pep_centric_hash
+        #binding.pry
       end
       def create_theoretical_spectra(fasta_file)
         outfile_name = File.join(File.dirname(fasta_file),File.basename(fasta_file).sub('.fasta', 'changethis'))
@@ -132,6 +142,9 @@ module MS
           matched_spectra << spectrum
         end
         matched_spectra
+      end
+      def pmf_search_mzml(mzml_file)
+
       end
       def normalize_by_section(bins)
         end_point = bins.map(&:end).max

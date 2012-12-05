@@ -1,3 +1,5 @@
+PMFObject = Struct.new(:monoisotopic_mass, :sequence, :isotopic_envelope)
+
 module MS
 require 'tools/fragmenter/masses'
   module DataStructs
@@ -45,5 +47,10 @@ require 'tools/fragmenter/masses'
         @bins = []
       end
     end #ExperimentalSpectrum
-  end
+    class PMFList < Array
+      def initialize(*args)
+        super PMFObject.new(args)
+      end
+    end
+  end # DataStructs
 end
